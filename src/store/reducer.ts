@@ -1,42 +1,31 @@
-import {
-  configureStore,
-  createSlice,
-  PayloadAction,
-  getDefaultMiddleware,
-} from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import { Cards, Columns, Comments, User } from '../types';
 
-const cardsInitialState: Cards[] = [
+import { CardType, ColumnType, CommentType, OpenCards, User } from '../type';
+
+const cardsInitialState: CardType[] = [
   {
-    id: 'w1',
-    title: 'Отчет',
-    text: 'Лишь сделанные на базе интернет-аналитики выводы ассоциативно распределены по отраслям. Как принято считать, акционеры крупнейших компаний освещают чрезвычайно интересные особенности картины в целом, однако',
+    theme: 'Lorem Ipsum',
+    author: 'Andre',
+    text: 'Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века.',
     checked: false,
-    author: 'Дмитрий',
-    columnId: 'ToDo',
+    columnID: 1,
+    id: 1,
   },
 ];
-const columnsInitialState: Columns[] = [
-  { id: 'ToDo', title: 'To Do' },
-  { id: 'InProgress', title: 'In progress' },
-  { id: 'Testing', title: 'Testing' },
-  { id: 'Done', title: 'Done' },
+const columnsInitialState: ColumnType[] = [
+  { nameColumn: 'ToDoo', indexColumn: 1 },
+  { nameColumn: 'In Progress', indexColumn: 2 },
+  { nameColumn: 'Testing', indexColumn: 3 },
+  { nameColumn: 'Done', indexColumn: 4 },
 ];
-const commentsInitialState: Comments[] = [
+const commentsInitialState: CommentType[] = [
   {
-    id: 'c1',
-    author: 'Димасик',
-    text: 'деланные на базе интернет-аналитики выводы ассоциативно распределены',
-    card: 'w1',
-  },
-  {
-    id: 'c2',
-    author: 'Димасик',
-    text: 'деланные на базе интернет-аналитики выводы ассоциативно распределены',
-    card: 'w1',
+    idComments: 1,
+    idCards: 1,
+    authorComments: 'Andre',
+    commentText:
+      'Многие думают, что Lorem Ipsum - взятый с потолка псевдо-латинский набор слов, но это не совсем .',
   },
 ];
 const userInitialState: User = '';
@@ -59,12 +48,12 @@ export const columnsSlice = createSlice({
   reducers: {
     changeTitle: (
       state,
-      { payload }: PayloadAction<{ columnId: string; newTitle: string }>,
+      { payload }: PayloadAction<{ columnId: number; newName: string }>,
     ) => {
-      if (payload.newTitle.trim()) {
+      if (payload.newName.trim()) {
         const newArr = state.map((column) => {
-          if (column.id === payload.columnId) {
-            return { ...column, title: payload.newTitle };
+          if (column.indexColumn === payload.columnId) {
+            return { ...column, nameColumn: payload.newName };
           }
           return column;
         });
@@ -83,65 +72,64 @@ export const cardsSlice = createSlice({
       {
         payload,
       }: PayloadAction<{
-        title: string;
+        theme: string;
         text: string;
-        column: string;
+        columnID: number;
         author: string;
       }>,
     ) => {
-      if (payload.title.trim() && payload.text.trim()) {
-        let id = 0;
+      if (payload.theme.trim() && payload.text.trim()) {
+        let newId = 0;
         let success = false;
-        const cardsId: string[] = [];
+        const cardsId = [];
 
         for (let i = 0; i < state.length; i++) {
           cardsId.push(state[i].id);
         }
 
         while (!success) {
-          if (cardsId.indexOf(`w${id}`) !== -1) {
-            id++;
+          if (cardsId.indexOf(newId) !== -1) {
+            newId++;
           } else {
             success = true;
           }
         }
-
         const card = {
-          id: w${id},
-          title: payload.title,
+          id: newId,
+          theme: payload.theme,
           text: payload.text,
           checked: false,
           author: payload.author,
-          columnId: payload.column,
+          columnID: payload.columnID,
         };
-
         const newCards = [...state, card];
         return newCards;
       }
     },
-    onCardChecked: (state, { payload }: PayloadAction<{ cardId: string }>) => {
+    onCardChecked: (state, { payload }: PayloadAction<{ Id: number }>) => {
       const newArr = state.map((item) => {
-        if (item.id === payload.cardId) {
+        if (item.id === payload.Id) {
           return { ...item, checked: !item.checked };
         }
         return item;
       });
       return newArr;
     },
-    onCardDelete: (state, { payload }: PayloadAction<{ cardId: string }>) => {
-      let newArr: Cards[] = state.filter((elem) => {
+    onCardDelete: (state, { payload }: PayloadAction<{ cardId: number }>) => {
+      let newArr = state.filter((elem) => {
         return elem.id !== payload.cardId;
       });
       return newArr;
     },
-    changeTitle: (
+    changeTheme: (
       state,
-      { payload }: PayloadAction<{ cardId: string; title: string }>,
+      { payload }: PayloadAction<{ cardId: number; theme: string }>,
     ) => {
-      if (payload.title.trim()) {
+      if (payload.theme.trim()) {
         const newArr = state.map((card) => {
           if (card.id === payload.cardId) {
-            return { ...card, title: payload.title };
+            console.log(123123);
+            return { ...card, theme: payload.theme };
           }
           return card;
         });
@@ -150,11 +138,10 @@ export const cardsSlice = createSlice({
     },
     changeText: (
       state,
-      { payload }: PayloadAction<{ cardId: string; text: string }>,
+      { payload }: PayloadAction<{ cardId: number; text: string }>,
     ) => {
       if (payload.text.trim()) {
-
-const newArr = state.map((card) => {
+        const newArr = state.map((card) => {
           if (card.id === payload.cardId) {
             return { ...card, text: payload.text };
           }
@@ -162,6 +149,32 @@ const newArr = state.map((card) => {
         });
         return newArr;
       }
+    },
+  },
+});
+
+export const showCardSlice = createSlice({
+  name: 'showCard',
+  initialState: -1,
+  reducers: {
+    setNewCard: (state, { payload }: PayloadAction<{ cardId: OpenCards }>) => {
+      return payload.cardId;
+    },
+    clearId: () => {
+      return -1;
+    },
+  },
+});
+
+export const addPopupSlice = createSlice({
+  name: 'addPopup',
+  initialState: -1,
+  reducers: {
+    openAddPopup: (state, { payload }: PayloadAction<{ columnId: number }>) => {
+      return payload.columnId;
+    },
+    closeAddPopup: () => {
+      return -1;
     },
   },
 });
@@ -174,50 +187,49 @@ export const commentsSlice = createSlice({
       state,
       {
         payload,
-      }: PayloadAction<{ cardId: string; author: string; text: string }>,
+      }: PayloadAction<{ cardId: number; author: string; text: string }>,
     ) => {
       if (payload.text.trim()) {
-        let commentId = 0;
+        let idComment = 0;
         let success = false;
-        const commentsId: string[] = [];
+        const commentsId = [];
 
         for (let comment of state) {
-          commentsId.push(comment.id);
+          commentsId.push(comment.idComments);
         }
-
         while (!success) {
-          if (commentsId.indexOf(`c${commentId}`) !== -1) {
-            commentId++;
+          if (commentsId.indexOf(idComment) !== -1) {
+            idComment++;
           } else {
             success = true;
           }
         }
 
         const comment = {
-          id: c${commentId},
-          card: payload.cardId,
-          author: payload.author,
-          text: payload.text,
+          idComments: idComment,
+          idCards: payload.cardId,
+          authorComments: payload.author,
+          commentText: payload.text,
         };
 
         const newArr = [...state, comment];
         return newArr;
       }
     },
-    onDelete: (state, { payload }: PayloadAction<{ ids: string[] }>) => {
+    onDelete: (state, { payload }: PayloadAction<{ ids: number[] }>) => {
       const filteredComments = state.filter((comment) => {
-        return !payload.ids.includes(comment.id);
+        return !payload.ids.includes(comment.idComments);
       });
       return filteredComments;
     },
     changeText: (
       state,
-      { payload }: PayloadAction<{ id: string; text: string }>,
+      { payload }: PayloadAction<{ id: number; text: string }>,
     ) => {
       if (payload.text.trim()) {
-        const newArr = state.map((comment) => {
-          if (comment.id === payload.id) {
-            comment.text = payload.text;
+        state.map((comment) => {
+          if (comment.idComments === payload.id) {
+            comment.commentText = payload.text;
           }
           return comment;
         });
@@ -227,46 +239,38 @@ export const commentsSlice = createSlice({
   extraReducers: {
     [cardsSlice.actions.onCardDelete.type]: (
       state,
-      { payload }: PayloadAction<{ cardId: string }>,
+      { payload }: PayloadAction<{ cardId: number }>,
     ) => {
       const filteredComments = state.filter((comment) => {
-        return payload.cardId !== comment.card;
+        return payload.cardId !== comment.idCards;
       });
       return filteredComments;
     },
   },
 });
 
-export const showCardSlice = createSlice({
-  name: 'cardToShow',
-  initialState: '',
+export const chengeThemeSlice = createSlice({
+  name: 'chengeTheme',
+  initialState: false,
   reducers: {
-    setNewCard: (state, { payload }: PayloadAction<{ cardId: string }>) => {
-      return payload.cardId;
+    chengeTheme: () => {
+      return true;
     },
-    clearId: () => {
-      return '';
-    },
-  },
-  extraReducers: {
-    [cardsSlice.actions.onCardDelete.type]: (state) => {
-      return '';
+    clearChengeTheme: () => {
+      return false;
     },
   },
 });
 
-export const createCardColumnIdSlice = createSlice({
-  name: 'createCardColumnId',
-  initialState: '',
+export const chengeTextSlice = createSlice({
+  name: 'chengeText',
+  initialState: false,
   reducers: {
-    setNewColumnId: (
-      state,
-      { payload }: PayloadAction<{ columnId: string }>,
-    ) => {
-      return payload.columnId;
+    chengeText: () => {
+      return true;
     },
-    clearId: () => {
-      return '';
+    clearChengeText: () => {
+      return false;
     },
   },
 });
@@ -277,5 +281,7 @@ export const reducer = combineReducers({
   comments: commentsSlice.reducer,
   user: userSlice.reducer,
   showCard: showCardSlice.reducer,
-  createCardColumnId: createCardColumnIdSlice.reducer,
+  addPopup: addPopupSlice.reducer,
+  chengeText: chengeTextSlice.reducer,
+  chengeTheme: chengeThemeSlice.reducer,
 });

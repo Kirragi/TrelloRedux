@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Cards from '../Cards';
 import ChengeIcon from '../assets/img/ChengeIcon.png';
+import { Form, Field } from 'react-final-form';
 import plusIcon from '../assets/img/plus.png';
-import { ColumnProps } from '../App/entity';
+import { State } from '../../type';
+import {
+  openAddPopupActionCreator,
+  changeColumnTitleActionCreator,
+} from '../../store/actions';
 import {
   NameColumn,
   ImgColumn,
@@ -17,43 +23,57 @@ import {
   CardsItem,
 } from './columnStyling';
 
-function Column(props: ColumnProps) {
-  const [newNameColumn, setNameColumn] = useState('');
+function Column() {
+  const dispatch = useDispatch();
   const [chengeColumn, setChengeColumn] = useState({
     statusColumn: false,
     chengeIdColumn: -1,
   });
+  const column = useSelector((state: State) => state.columns);
+  const cardState = useSelector((state: State) => state.cards);
 
-  function onNewNameColumn(e: React.FormEvent<HTMLInputElement>): void {
-    setNameColumn(e.currentTarget.value);
-  }
-
-  function switchChenge(value: string, indexCol: number) {
+  function switchChenge(indexCol: number) {
     setChengeColumn({ statusColumn: true, chengeIdColumn: indexCol });
-    setNameColumn(value);
   }
-  function onChenge(indexColumn: number) {
-    props.newNameColumn(newNameColumn, indexColumn);
-    setChengeColumn({ statusColumn: false, chengeIdColumn: -1 });
-  }
-  const elementsColumn = props.dataColumn.map((itemColumn) => {
+  const elementsColumn = column.map((itemColumn) => {
     const { nameColumn, indexColumn } = itemColumn;
     let change: JSX.Element;
-    if (
-      chengeColumn.statusColumn &&
-      chengeColumn.chengeIdColumn === indexColumn
-    ) {
+    if (chengeColumn.chengeIdColumn === indexColumn) {
       change = (
         <div>
           <ChengeWraper>
-            <InputName
-              type="text"
-              defaultValue={nameColumn}
-              onChange={onNewNameColumn}
-            />
-            <ButtonColumn onClick={() => onChenge(itemColumn.indexColumn)}>
-              Изменить
-            </ButtonColumn>
+            <Form
+              onSubmit={(formObj: { newName: string }) => {
+                if (formObj.newName) {
+                  if (formObj.newName.trim()) {
+                    dispatch(
+                      changeColumnTitleActionCreator({
+                        columnId: itemColumn.indexColumn,
+                        newName: formObj.newName,
+                      }),
+                    );
+                    setChengeColumn({
+                      statusColumn: false,
+                      chengeIdColumn: -1,
+                    });
+                  }
+                }
+              }}>
+              {({ handleSubmit }) => (
+                <form onSubmit={handleSubmit}>
+                  <Field name="newName" defaultValue={nameColumn}>
+                    {({ input }) => (
+                      <InputName
+                        type="text"
+                        {...input}
+                        defaultValue={nameColumn}
+                      />
+                    )}
+                  </Field>
+                  <ButtonColumn>Изменить</ButtonColumn>
+                </form>
+              )}
+            </Form>
           </ChengeWraper>
         </div>
       );
@@ -62,17 +82,16 @@ function Column(props: ColumnProps) {
         <div>
           <Flex>
             <NameColumn>{nameColumn}</NameColumn>
-            <ButtonChenge
-              onClick={() =>
-                switchChenge({ nameColumn }.nameColumn, itemColumn.indexColumn)
-              }>
+            <ButtonChenge onClick={() => switchChenge(itemColumn.indexColumn)}>
               <ImgColumn src={ChengeIcon} alt="chenge" />
             </ButtonChenge>
             <ButtonPlus
               onClick={() =>
-                props.setActive([
-                  { status: true, createIndex: { indexColumn }.indexColumn },
-                ])
+                dispatch(
+                  openAddPopupActionCreator({
+                    columnId: { indexColumn }.indexColumn,
+                  }),
+                )
               }>
               <ImgColumn src={plusIcon} alt="plus" />
             </ButtonPlus>
@@ -81,19 +100,12 @@ function Column(props: ColumnProps) {
       );
     }
 
-    const elements = props.dataCards.map((itemCards) => {
+    const elements = cardState.map((itemCards) => {
       const card = itemCards;
       if (itemCards.columnID === { indexColumn }.indexColumn) {
         return (
           <CardsItem key={itemCards.id}>
-            <Cards
-              cards={props.dataCards}
-              card={card}
-              onDelete={() => props.onDelete(itemCards.id)}
-              onToggleChecked={() => props.onToggleChecked(itemCards.id)}
-              setPopupCard={props.setPopupCard}
-              comments={props.comments}
-            />
+            <Cards card={card} />
           </CardsItem>
         );
       }

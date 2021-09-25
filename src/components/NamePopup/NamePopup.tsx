@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { NameProps } from '../App/entity';
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Form, Field } from 'react-final-form';
+import { State } from '../../type';
 import {
   Button,
   WrapperPopup,
@@ -9,40 +11,41 @@ import {
   Flex,
   Name,
 } from './nameStyling';
+import { setUserActionCreator } from '../../store/actions';
 
-function NamePopup(props: NameProps) {
-  const [newNeme, setNewNeme] = useState('');
-
-  function onThemeNewCards(e: React.FormEvent<HTMLInputElement>): void {
-    setNewNeme(e.currentTarget.value);
-  }
-
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    props.setName([{ status: false, name: newNeme }]);
-    localStorage.setItem(
-      'name',
-      JSON.stringify([{ status: false, name: newNeme }]),
-    );
-  }
-
+function NamePopup() {
+  const dispatch = useDispatch();
+  const user = useSelector((state: State) => state.user);
   let popup: JSX.Element;
-  if (props.name[0].status === true) {
+  if (user === '') {
     popup = (
       <WrapperPopup>
         <ContentPopup>
-          <form onSubmit={onSubmit}>
-            <YourName>Как вас зовут?</YourName>
-            <Flex>
-              <InputName type="text" onChange={onThemeNewCards} />
-              <Button>Готово</Button>
-            </Flex>
-          </form>
+          <Form
+            onSubmit={(formObj: { name: string }) => {
+              if (formObj.name) {
+                if (formObj.name.trim()) {
+                  dispatch(setUserActionCreator({ userName: formObj.name }));
+                }
+              }
+            }}>
+            {({ handleSubmit }) => (
+              <form onSubmit={handleSubmit}>
+                <YourName>Как вас зовут?</YourName>
+                <Flex>
+                  <Field name="name">
+                    {({ input }) => <InputName type="text" {...input} />}
+                  </Field>
+                  <Button>Готово</Button>
+                </Flex>
+              </form>
+            )}
+          </Form>
         </ContentPopup>
       </WrapperPopup>
     );
   } else {
-    popup = <Name>{props.name[0].name}</Name>;
+    popup = <Name>{user}</Name>;
   }
 
   return (
