@@ -1,52 +1,31 @@
-export type NameType = {
-  status: boolean;
-  name: string;
-};
-export type User = string;
 export type CardType = {
   theme: string;
   author: string;
   text: string;
   checked: boolean;
   columnID: number;
-  id: number;
+  id: string;
+  statusPopup: boolean;
+  statusText: boolean;
+  statusTheme: boolean;
 };
 export type ColumnType = {
   nameColumn: string;
-  indexColumn: number;
+  idColumn: number;
+  statusAddPopup: boolean;
+  statusChenge: boolean;
 };
 export type CommentType = {
-  idCards: number;
-  idComments: number;
+  idCards: string;
+  idComments: string;
   authorComments: string;
   commentText: string;
+  statusChengeComment: boolean;
 };
-export type CreateActiveType = {
-  status: boolean;
-  createIndex: number;
-};
-export type PopupCardType = {
-  status: boolean;
-  cardIndex: number;
-};
-export type OpenCards = number;
 
 export type State = {
-  user: User;
+  user: string;
   columns: ColumnType[];
   cards: CardType[];
-  showCard: OpenCards;
   comments: CommentType[];
-  addPopup: number;
-  chengeText: boolean;
-  chengeTheme: boolean;
 };
-
-export interface CardProps {
-  card: CardType;
-}
-export interface CommentProps {
-  comment: CommentType;
-  idCommentChenge: number;
-  setIdCommentChenge(idCommentChenge: number): void;
-}

@@ -2,12 +2,13 @@ import React from 'react';
 import trashIcon from '../assets/img/trash.png';
 import openIcon from '../assets/img/open.png';
 import closeIcon from '../assets/img/close.png';
-import { CardProps, State } from '../../type';
+import { CardType, State } from '../../type';
 import { useSelector, useDispatch } from 'react-redux';
+import CardPopup from '../CardPopup';
 import {
-  onCardDeleteActionCreator,
-  onCardCheckedActionCreator,
-  setNewCardIdActionCreator,
+  onCardDelete,
+  onCardChecked,
+  openPopupCard,
 } from '../../store/actions';
 import {
   CardWraper,
@@ -18,9 +19,8 @@ import {
   FooterCard,
 } from './cardsStyling';
 
-function Cards(props: CardProps) {
+function Cards(props: { card: CardType }) {
   const dispatch = useDispatch();
-  const statusCards = useSelector((state: State) => state.showCard);
   const comments = useSelector((state: State) => state.comments);
   let checedIcons: JSX.Element;
 
@@ -31,12 +31,7 @@ function Cards(props: CardProps) {
   }
 
   function openPopup() {
-    dispatch(
-      setNewCardIdActionCreator({
-        cardId: props.card.id,
-      }),
-    );
-    console.log(statusCards);
+    dispatch(openPopupCard({ cardId: props.card.id }));
   }
 
   const colComment = [0];
@@ -60,22 +55,19 @@ function Cards(props: CardProps) {
         <ButtonWraper>
           <div onClick={(e) => e.stopPropagation()}>
             <ButtonCards
-              onClick={() =>
-                dispatch(onCardCheckedActionCreator({ Id: props.card.id }))
-              }>
+              onClick={() => dispatch(onCardChecked({ Id: props.card.id }))}>
               {checedIcons}
             </ButtonCards>
           </div>
           <div onClick={(e) => e.stopPropagation()}>
             <ButtonCards
-              onClick={() =>
-                dispatch(onCardDeleteActionCreator({ cardId: props.card.id }))
-              }>
+              onClick={() => dispatch(onCardDelete({ cardId: props.card.id }))}>
               <ImgCards src={trashIcon} alt="trash" />
             </ButtonCards>
           </div>
         </ButtonWraper>
       </FooterCard>
+      <CardPopup card={props.card} />
     </CardWraper>
   );
 }

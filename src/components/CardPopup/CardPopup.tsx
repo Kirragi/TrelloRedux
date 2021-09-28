@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ChengeIcon from '../assets/img/ChengeIcon.png';
 import { useSelector, useDispatch } from 'react-redux';
 import crossIcon from '../assets/img/cross.png';
@@ -6,14 +6,14 @@ import Comment from '../Comment';
 import { CardType, State } from '../../type';
 import { Form, Field } from 'react-final-form';
 import {
-  clearShowCardIdActionCreator,
-  createCommentdActionCreator,
-  changeCardTitleActionCreator,
-  changeCardTextActionCreator,
-  clearChengeThemeActionCreator,
-  clearChengeTextActionCreator,
-  chengeTextActionCreator,
-  chengeThemeActionCreator,
+  changeCardTheme,
+  changeCardText,
+  chengeStatusText,
+  chengeStatusTheme,
+  clearChengeCard,
+  clearChengeComment,
+  closePopupCard,
+  createComment,
 } from '../../store/actions';
 import {
   WrapperPopup,
@@ -35,82 +35,66 @@ import {
   CommentWrapper,
 } from './cardPopupStyling';
 
-function CardPopup() {
-  const [idCommentChenge, setIdCommentChenge] = useState(-1);
-  const cardState = useSelector((state: State) => state.cards);
-  const statusCard = useSelector((state: State) => state.showCard);
+function CardPopup(props: { card: CardType }) {
   const user = useSelector((state: State) => state.user);
   const columnState = useSelector((state: State) => state.columns);
   const comment = useSelector((state: State) => state.comments);
-  const chengeTheme = useSelector((state: State) => state.chengeTheme);
-  const chengeText = useSelector((state: State) => state.chengeText);
   const dispatch = useDispatch();
+  const card: CardType = props.card;
   let nameColumn = '' as string;
-  let dataPopup = cardState.find((item) => statusCard === item.id);
-
-  if (dataPopup !== undefined) {
-    columnState.find((item) => item.indexColumn === dataPopup?.columnID);
-  }
-  function switchTheme() {
-    dispatch(chengeThemeActionCreator());
-    dispatch(clearChengeTextActionCreator());
-  }
-
-  function switchText() {
-    dispatch(chengeTextActionCreator());
-    dispatch(clearChengeThemeActionCreator());
-  }
+  columnState.map((item) => {
+    if (props.card.columnID === item.idColumn) {
+      nameColumn = item.nameColumn;
+    }
+  });
 
   function closePopup() {
-    dispatch(clearChengeThemeActionCreator());
-    dispatch(clearChengeTextActionCreator());
-    dispatch(clearShowCardIdActionCreator());
+    dispatch(closePopupCard());
+    dispatch(clearChengeComment());
+    dispatch(clearChengeCard());
   }
 
   const comments = comment.map((itemComent) => {
-    if (itemComent.idCards === statusCard) {
+    if (itemComent.idCards === card.id) {
       return (
         <CommentWrapper key={itemComent.idComments}>
-          <Comment
-            comment={itemComent}
-            idCommentChenge={idCommentChenge}
-            setIdCommentChenge={setIdCommentChenge}
-          />
+          <Comment comment={itemComent} />
         </CommentWrapper>
       );
     }
   });
 
-  let statusTheme: JSX.Element;
-  if (chengeTheme === false) {
-    statusTheme = (
+  let themeCard: JSX.Element;
+  if (card.statusTheme === false) {
+    themeCard = (
       <ThemeWrapper>
-        <ThemeText>{dataPopup?.theme}</ThemeText>
-        <ButtonChenge onClick={() => switchTheme()}>
+        <ThemeText>{props.card.theme}</ThemeText>
+        <ButtonChenge
+          onClick={() => dispatch(chengeStatusTheme({ cardId: card.id }))}>
           <ImgTheme src={ChengeIcon} alt="" />
         </ButtonChenge>
       </ThemeWrapper>
     );
   } else {
-    statusTheme = (
+    themeCard = (
       <div>
         <Form
           onSubmit={(formObj: { newTheme: string }) => {
             if (formObj.newTheme) {
               if (formObj.newTheme.trim()) {
                 dispatch(
-                  changeCardTitleActionCreator({
-                    cardId: statusCard,
+                  changeCardTheme({
+                    cardId: card.id,
                     theme: formObj.newTheme,
                   }),
                 );
-                dispatch(clearChengeThemeActionCreator());
+                dispatch(clearChengeCard());
               }
             }
           }}>
           {({ handleSubmit }) => (
             <form onSubmit={handleSubmit}>
-              <Field name="newTheme" defaultValue={dataPopup?.theme}>
+              <Field name="newTheme" defaultValue={card.theme}>
                 {({ input }) => <InputTheme type="text" {...input} />}
               </Field>
               <ButtonTheme>Изменить</ButtonTheme>
@@ -121,36 +105,37 @@ function CardPopup() {
     );
   }
 
-  let statusText: JSX.Element;
-  if (chengeText === false) {
-    statusText = (
+  let textCard: JSX.Element;
+  if (card.statusText === false) {
+    textCard = (
       <div>
-        <span>{dataPopup?.text}</span>
-        <ButtonChenge onClick={() => switchText()}>
+        <span>{card.text}</span>
+        <ButtonChenge
+          onClick={() => dispatch(chengeStatusText({ cardId: card.id }))}>
           <ImgText src={ChengeIcon} alt="" />
         </ButtonChenge>
       </div>
     );
   } else {
-    statusText = (
+    textCard = (
       <div>
         <Form
           onSubmit={(formObj: { newText: string }) => {
             if (formObj.newText) {
               if (formObj.newText.trim()) {
                 dispatch(
-                  changeCardTextActionCreator({
-                    cardId: statusCard,
+                  changeCardText({
+                    cardId: card.id,
                     text: formObj.newText,
                   }),
                 );
-                dispatch(clearChengeTextActionCreator());
+                dispatch(clearChengeCard());
               }
             }
           }}>
           {({ handleSubmit }) => (
             <form onSubmit={handleSubmit}>
-              <Field name="newText" defaultValue={dataPopup?.text}>
+              <Field name="newText" defaultValue={card.text}>
                 {({ input }) => <Textarea {...input} />}
               </Field>
               <ButtonText>Изменить</ButtonText>
@@ -162,65 +147,63 @@ function CardPopup() {
   }
 
   let popup: JSX.Element;
-  if (statusCard !== -1) {
+
+  if (card.statusPopup === true) {
     popup = (
-      <WrapperPopup onClick={() => closePopup()}>
-        <ContentPopup
-          className="card__popup__content"
-          onClick={(e) => e.stopPropagation()}>
-          <HeaderPopup>
-            <span>Колонка: {nameColumn}</span>
-            <ButtonCross onClick={() => closePopup()}>
-              <ImgCross src={crossIcon} alt="" />
-            </ButtonCross>
-          </HeaderPopup>
-          {statusTheme}
-          <p>Автор: {dataPopup?.author}</p>
-          {statusText}
-          <Form
-            onSubmit={(formObj: { newComment: string }) => {
-              if (formObj.newComment) {
-                if (formObj.newComment.trim()) {
-                  dispatch(
-                    createCommentdActionCreator({
-                      cardId: statusCard,
-                      author: user,
-                      text: formObj.newComment,
-                    }),
-                  );
-                  formObj.newComment = '';
+      <div onClick={(e) => e.stopPropagation()}>
+        <WrapperPopup onClick={() => closePopup()}>
+          <ContentPopup
+            className="card__popup__content"
+            onClick={(e) => e.stopPropagation()}>
+            <HeaderPopup>
+              <span>Колонка: {nameColumn}</span>
+              <ButtonCross onClick={() => closePopup()}>
+                <ImgCross src={crossIcon} alt="" />
+              </ButtonCross>
+            </HeaderPopup>
+            {themeCard}
+            <p>Автор: {card.author}</p>
+            {textCard}
+            <Form
+              onSubmit={(formObj: { newComment: string }) => {
+                if (formObj.newComment) {
+                  if (formObj.newComment.trim()) {
+                    dispatch(
+                      createComment({
+                        cardId: card.id,
+                        author: user,
+                        text: formObj.newComment,
+                      }),
+                    );
+                    formObj.newComment = '';
+                  }
                 }
-              }
-            }}>
-            {({ handleSubmit }) => (
-              <form onSubmit={handleSubmit}>
-                <p>Добавление комментария</p>
-                <Field name="newComment">
-                  {({ input }) => (
-                    <InputComment
-                      type="text"
-                      placeholder="Ваш комментарий"
-                      {...input}
-                    />
-                  )}
-                </Field>
-                <ButtonComment>Добавить</ButtonComment>
-              </form>
-            )}
-          </Form>
-          <p>Комментарии</p>
-          {comments}
-        </ContentPopup>
-      </WrapperPopup>
+              }}>
+              {({ handleSubmit }) => (
+                <form onSubmit={handleSubmit}>
+                  <p>Добавление комментария</p>
+                  <Field name="newComment">
+                    {({ input }) => (
+                      <InputComment
+                        type="text"
+                        placeholder="Ваш комментарий"
+                        {...input}
+                      />
+                    )}
+                  </Field>
+                  <ButtonComment>Добавить</ButtonComment>
+                </form>
+              )}
+            </Form>
+            <p>Комментарии</p>
+            {comments}
+          </ContentPopup>{' '}
+        </WrapperPopup>
+      </div>
     );
   } else {
-    popup = <div></div>;
+    popup = <></>;
   }
-
-  return (
-    <div>
-      <div> {popup}</div>
-    </div>
-  );
+  return popup;
 }
 export default CardPopup;

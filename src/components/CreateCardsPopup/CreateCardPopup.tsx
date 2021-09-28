@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import crossIcon from '../assets/img/cross.png';
-import { State } from '../../type';
+import { State, ColumnType } from '../../type';
 import { Form, Field } from 'react-final-form';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  closeAddPopupActionCreator,
-  createCardActionCreator,
-} from '../../store/actions';
+import { closeAddPopup, createCard } from '../../store/actions';
 import {
   WrapperPopup,
   HeaderPopup,
@@ -20,19 +17,18 @@ import {
   Button,
 } from './createCardStyling';
 
-function CreateCardsPopup() {
+function CreateCardsPopup(props: { column: ColumnType }) {
   const dispatch = useDispatch();
   const user = useSelector((state: State) => state.user);
-  const addPopupId = useSelector((state: State) => state.addPopup);
 
   let popup: JSX.Element;
-  if (addPopupId !== -1) {
+  if (props.column.statusAddPopup === true) {
     popup = (
-      <WrapperPopup onClick={() => dispatch(closeAddPopupActionCreator())}>
+      <WrapperPopup onClick={() => dispatch(closeAddPopup())}>
         <ContentPopup onClick={(e) => e.stopPropagation()}>
           <HeaderPopup>
             <HederText>Создание карточки</HederText>
-            <ButtonCross onClick={() => dispatch(closeAddPopupActionCreator())}>
+            <ButtonCross onClick={() => dispatch(closeAddPopup())}>
               <ImgPopup src={crossIcon} alt="cross" />
             </ButtonCross>
           </HeaderPopup>
@@ -41,14 +37,14 @@ function CreateCardsPopup() {
               if (formObj.theme && formObj.text) {
                 if (formObj.theme.trim() && formObj.text.trim()) {
                   dispatch(
-                    createCardActionCreator({
+                    createCard({
                       theme: formObj.theme,
                       text: formObj.text,
                       author: user,
-                      columnID: addPopupId,
+                      columnID: props.column.idColumn,
                     }),
                   );
-                  dispatch(closeAddPopupActionCreator());
+                  dispatch(closeAddPopup());
                 }
               }
             }}>

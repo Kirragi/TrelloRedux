@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import trashIcon from '../assets/img/trash.png';
 import ChengeIcon from '../assets/img/ChengeIcon.png';
-import { CommentProps } from '../../type';
+import { CommentType } from '../../type';
 import { Form, Field } from 'react-final-form';
 import { useDispatch } from 'react-redux';
 import {
-  onCommentDeleteActionCreator,
-  changeCommentTextActionCreator,
+  onCommentDelete,
+  changeCommentText,
+  chengeStatusComment,
+  clearChengeComment,
 } from '../../store/actions';
 import {
   ImgTheme,
@@ -17,16 +19,16 @@ import {
   ButtonTrash,
   CommentHeader,
 } from './commentStyling';
-function Comment(props: CommentProps) {
-  const [chenge, setChenge] = useState(false);
+function Comment(props: { comment: CommentType }) {
+  const comment = props.comment;
   const dispatch = useDispatch();
-  let statusComment: JSX.Element;
-  function openChenge() {
-    setChenge(true);
-    props.setIdCommentChenge(props.comment.idComments);
+  function changeStatus() {
+    dispatch(clearChengeComment());
+    dispatch(chengeStatusComment({ commentId: comment.idComments }));
   }
 
-  if (chenge && props.idCommentChenge === props.comment.idComments) {
+  let statusComment: JSX.Element;
+  if (comment.statusChengeComment === true) {
     statusComment = (
       <div>
         <Form
@@ -34,13 +36,12 @@ function Comment(props: CommentProps) {
             if (formObj.newText) {
               if (formObj.newText.trim()) {
                 dispatch(
-                  changeCommentTextActionCreator({
+                  changeCommentText({
                     id: props.comment.idComments,
                     text: formObj.newText,
                   }),
                 );
-                setChenge(false);
-                props.setIdCommentChenge(-1);
+                dispatch(clearChengeComment());
               }
             }
           }}>
@@ -59,7 +60,7 @@ function Comment(props: CommentProps) {
     statusComment = (
       <div>
         <span>{props.comment.commentText}</span>
-        <ButtonChenge onClick={() => openChenge()}>
+        <ButtonChenge onClick={() => changeStatus()}>
           <ImgText src={ChengeIcon} alt="" />
         </ButtonChenge>
       </div>
@@ -72,9 +73,7 @@ function Comment(props: CommentProps) {
         <p>Автор: {props.comment.authorComments}</p>
         <ButtonTrash
           onClick={() =>
-            dispatch(
-              onCommentDeleteActionCreator({ ids: [props.comment.idComments] }),
-            )
+            dispatch(onCommentDelete({ ids: props.comment.idComments }))
           }>
           <ImgTheme src={trashIcon} alt="" />
         </ButtonTrash>

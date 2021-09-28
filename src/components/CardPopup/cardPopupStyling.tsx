@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 export const WrapperPopup = styled.div`
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   font-family: 'Roboto';
   background-color: rgba(0, 0, 0, 0.4);
   position: fixed;
@@ -10,7 +10,9 @@ export const WrapperPopup = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  z-idex: 3;
 `;
+
 export const HeaderPopup = styled.div`
   display: flex;
   justify-content: space-between;

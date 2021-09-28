@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Cards from '../Cards';
 import ChengeIcon from '../assets/img/ChengeIcon.png';
@@ -6,11 +6,15 @@ import { Form, Field } from 'react-final-form';
 import plusIcon from '../assets/img/plus.png';
 import { State } from '../../type';
 import {
-  openAddPopupActionCreator,
-  changeColumnTitleActionCreator,
+  openAddPopup,
+  changeColumnName,
+  statusChengeColumn,
+  closeChengeColumn,
 } from '../../store/actions';
+import CreateCardsPopup from '../CreateCardsPopup';
 import {
   NameColumn,
+  FormContainer,
   ImgColumn,
   ButtonChenge,
   ButtonPlus,
@@ -25,20 +29,16 @@ import {
 
 function Column() {
   const dispatch = useDispatch();
-  const [chengeColumn, setChengeColumn] = useState({
-    statusColumn: false,
-    chengeIdColumn: -1,
-  });
-  const column = useSelector((state: State) => state.columns);
-  const cardState = useSelector((state: State) => state.cards);
-
-  function switchChenge(indexCol: number) {
-    setChengeColumn({ statusColumn: true, chengeIdColumn: indexCol });
+  const columns = useSelector((state: State) => state.columns);
+  const cards = useSelector((state: State) => state.cards);
+  function chengeNameColumn(idColumn: number) {
+    dispatch(closeChengeColumn());
+    dispatch(statusChengeColumn({ columnId: idColumn }));
   }
-  const elementsColumn = column.map((itemColumn) => {
-    const { nameColumn, indexColumn } = itemColumn;
+  const elementsColumn = columns.map((itemColumn) => {
+    const { nameColumn, idColumn, statusChenge } = itemColumn;
     let change: JSX.Element;
-    if (chengeColumn.chengeIdColumn === indexColumn) {
+    if (statusChenge === true) {
       change = (
         <div>
           <ChengeWraper>
@@ -47,30 +47,23 @@ function Column() {
                 if (formObj.newName) {
                   if (formObj.newName.trim()) {
                     dispatch(
-                      changeColumnTitleActionCreator({
-                        columnId: itemColumn.indexColumn,
+                      changeColumnName({
+                        columnId: itemColumn.idColumn,
                         newName: formObj.newName,
                       }),
                     );
-                    setChengeColumn({
-                      statusColumn: false,
-                      chengeIdColumn: -1,
-                    });
+                    dispatch(closeChengeColumn());
                   }
                 }
               }}>
               {({ handleSubmit }) => (
                 <form onSubmit={handleSubmit}>
-                  <Field name="newName" defaultValue={nameColumn}>
-                    {({ input }) => (
-                      <InputName
-                        type="text"
-                        {...input}
-                        defaultValue={nameColumn}
-                      />
-                    )}
-                  </Field>
-                  <ButtonColumn>Изменить</ButtonColumn>
+                  <FormContainer>
+                    <Field name="newName" defaultValue={nameColumn}>
+                      {({ input }) => <InputName type="text" {...input} />}
+                    </Field>
+                    <ButtonColumn>Изменить</ButtonColumn>
+                  </FormContainer>
                 </form>
               )}
             </Form>
@@ -82,14 +75,14 @@ function Column() {
         <div>
           <Flex>
             <NameColumn>{nameColumn}</NameColumn>
-            <ButtonChenge onClick={() => switchChenge(itemColumn.indexColumn)}>
+            <ButtonChenge onClick={() => chengeNameColumn(itemColumn.idColumn)}>
               <ImgColumn src={ChengeIcon} alt="chenge" />
             </ButtonChenge>
             <ButtonPlus
               onClick={() =>
                 dispatch(
-                  openAddPopupActionCreator({
-                    columnId: { indexColumn }.indexColumn,
+                  openAddPopup({
+                    columnId: { idColumn }.idColumn,
                   }),
                 )
               }>
@@ -100,21 +93,21 @@ function Column() {
       );
     }
 
-    const elements = cardState.map((itemCards) => {
-      const card = itemCards;
-      if (itemCards.columnID === { indexColumn }.indexColumn) {
+    const elements = cards.map((itemCards) => {
+      if (itemCards.columnID === { idColumn }.idColumn) {
         return (
           <CardsItem key={itemCards.id}>
-            <Cards card={card} />
+            <Cards card={itemCards} />
           </CardsItem>
         );
       }
     });
 
     return (
-      <ColumnContent key={indexColumn}>
+      <ColumnContent key={idColumn}>
         {change}
         {elements}
+        <CreateCardsPopup column={itemColumn} />
       </ColumnContent>
     );
   });

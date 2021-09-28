@@ -11,7 +11,7 @@ import {
   Flex,
   Name,
 } from './nameStyling';
-import { setUserActionCreator } from '../../store/actions';
+import { setUser } from '../../store/actions';
 
 function NamePopup() {
   const dispatch = useDispatch();
@@ -25,7 +25,7 @@ function NamePopup() {
             onSubmit={(formObj: { name: string }) => {
               if (formObj.name) {
                 if (formObj.name.trim()) {
-                  dispatch(setUserActionCreator({ userName: formObj.name }));
+                  dispatch(setUser({ userName: formObj.name }));
                 }
               }
             }}>

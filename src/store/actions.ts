@@ -1,49 +1,35 @@
-import {
-  userSlice,
-  columnsSlice,
-  cardsSlice,
-  commentsSlice,
-  showCardSlice,
-  addPopupSlice,
-  chengeThemeSlice,
-  chengeTextSlice,
-} from './reducer';
+import { commentsSlice } from './commentSlice';
+import { userSlice } from './userSlice';
+import { columnsSlice } from './columnsSlice';
+import { cardsSlice } from './cardSlice';
 
 export const {
-  setNewCard: setNewCardIdActionCreator,
-  clearId: clearShowCardIdActionCreator,
-} = showCardSlice.actions;
-
-export const {
-  openAddPopup: openAddPopupActionCreator,
-  closeAddPopup: closeAddPopupActionCreator,
-} = addPopupSlice.actions;
-
-export const {
-  create: createCommentdActionCreator,
-  onDelete: onCommentDeleteActionCreator,
-  changeText: changeCommentTextActionCreator,
+  create: createComment,
+  onDelete: onCommentDelete,
+  changeText: changeCommentText,
+  chengeStatusComment: chengeStatusComment,
+  clearChengeComment: clearChengeComment,
 } = commentsSlice.actions;
 
 export const {
-  onCardChecked: onCardCheckedActionCreator,
-  onCardDelete: onCardDeleteActionCreator,
-  create: createCardActionCreator,
-  changeTheme: changeCardTitleActionCreator,
-  changeText: changeCardTextActionCreator,
+  onCardChecked: onCardChecked,
+  onCardDelete: onCardDelete,
+  create: createCard,
+  changeTheme: changeCardTheme,
+  changeText: changeCardText,
+  openPopupCard: openPopupCard,
+  closePopupCard: closePopupCard,
+  chengeStatusTheme: chengeStatusTheme,
+  chengeStatusText: chengeStatusText,
+  clearChengeCard: clearChengeCard,
 } = cardsSlice.actions;
 
 export const {
-  chengeTheme: chengeThemeActionCreator,
-  clearChengeTheme: clearChengeThemeActionCreator,
-} = chengeThemeSlice.actions;
+  statusChengeColumn: statusChengeColumn,
+  closeChengeColumn: closeChengeColumn,
+  changeColumnName: changeColumnName,
+  openAddPopup: openAddPopup,
+  closeAddPopup: closeAddPopup,
+} = columnsSlice.actions;
 
-export const {
-  chengeText: chengeTextActionCreator,
-  clearChengeText: clearChengeTextActionCreator,
-} = chengeTextSlice.actions;
-
-export const { changeTitle: changeColumnTitleActionCreator } =
-  columnsSlice.actions;
-
-export const { setUser: setUserActionCreator } = userSlice.actions;
+export const { setUser: setUser } = userSlice.actions;

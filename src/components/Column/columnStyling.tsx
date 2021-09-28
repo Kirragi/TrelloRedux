@@ -43,6 +43,10 @@ export const ButtonColumn = styled.button`
     cursor: pointer;
   }
 `;
+export const FormContainer = styled.div`
+  display: flex;
+  justify-content: space-around;
+`;
 export const InputName = styled.input`
   height: 24px;
   width: 200px;
