@@ -22,16 +22,12 @@ import {
 function Cards(props: { card: CardType }) {
   const dispatch = useDispatch();
   const comments = useSelector((state: State) => state.comments);
-  let checedIcons: JSX.Element;
+  let checkedIcons: JSX.Element;
 
   if (props.card.checked) {
-    checedIcons = <ImgCards src={openIcon} alt="checked" />;
+    checkedIcons = <ImgCards src={openIcon} alt="checked" />;
   } else {
-    checedIcons = <ImgCards src={closeIcon} alt="checked" />;
-  }
-
-  function openPopup() {
-    dispatch(openPopupCard({ cardId: props.card.id }));
+    checkedIcons = <ImgCards src={closeIcon} alt="checked" />;
   }
 
   const colComment = [0];
@@ -42,7 +38,8 @@ function Cards(props: { card: CardType }) {
   });
 
   return (
-    <CardWraper onClick={() => openPopup()}>
+    <CardWraper
+      onClick={() => dispatch(openPopupCard({ cardId: props.card.id }))}>
       <div className="card__info-wrapper">
         <ThemeColumn>{props.card.theme}</ThemeColumn>
         <p className="card__autor">Автор: {props.card.author}</p>
@@ -56,7 +53,7 @@ function Cards(props: { card: CardType }) {
           <div onClick={(e) => e.stopPropagation()}>
             <ButtonCards
               onClick={() => dispatch(onCardChecked({ Id: props.card.id }))}>
-              {checedIcons}
+              {checkedIcons}
             </ButtonCards>
           </div>
           <div onClick={(e) => e.stopPropagation()}>
