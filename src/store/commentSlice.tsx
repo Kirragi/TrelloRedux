@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CommentType } from '../type';
+import { CommentType, State } from '../type';
 import { cardsSlice } from './cardSlice';
 import { uuidv4 } from './generateUUID';
+import { createSelector } from 'reselect';
 const commentsInitialState: CommentType[] = [
   {
-    idComments: 'hdfsjh3',
+    id: 'hdfsjh3',
     idCards: 'jnfejbf',
     authorComments: 'Andre',
     statusChengeComment: false,
@@ -25,7 +26,7 @@ export const commentsSlice = createSlice({
     ) => {
       if (payload.text.trim()) {
         const comment = {
-          idComments: uuidv4(),
+          id: uuidv4(),
           idCards: payload.cardId,
           authorComments: payload.author,
           commentText: payload.text,
@@ -36,9 +37,9 @@ export const commentsSlice = createSlice({
         return newArrComment;
       }
     },
-    onDelete: (state, { payload }: PayloadAction<{ ids: string }>) => {
+    onDelete: (state, { payload }: PayloadAction<{ id: string }>) => {
       const filteredComments = state.filter((comment) => {
-        return !payload.ids.includes(comment.idComments);
+        return !payload.id.includes(comment.id);
       });
       return filteredComments;
     },
@@ -48,7 +49,7 @@ export const commentsSlice = createSlice({
     ) => {
       if (payload.text.trim()) {
         state.map((comment) => {
-          if (comment.idComments === payload.id) {
+          if (comment.id === payload.id) {
             comment.commentText = payload.text;
           }
           return comment;
@@ -57,10 +58,10 @@ export const commentsSlice = createSlice({
     },
     chengeStatusComment: (
       state,
-      { payload }: PayloadAction<{ commentId: string }>,
+      { payload }: PayloadAction<{ id: string }>,
     ) => {
       const newArrComment = state.map((comment) => {
-        if (comment.idComments === payload.commentId) {
+        if (comment.id === payload.id) {
           return { ...comment, statusChengeComment: true };
         }
         return comment;
@@ -68,8 +69,8 @@ export const commentsSlice = createSlice({
       return newArrComment;
     },
     clearChengeComment: (state) => {
-      const newArrComment = state.map((card) => {
-        return { ...card, statusChengeComment: false };
+      const newArrComment = state.map((comment) => {
+        return { ...comment, statusChengeComment: false };
       });
       return newArrComment;
     },
@@ -86,3 +87,11 @@ export const commentsSlice = createSlice({
     },
   },
 });
+
+export function selectCommentsCard(idCard: string) {
+  const selector = createSelector(
+    (state: State) => state.comments,
+    (comments) => comments.filter((comment) => comment.idCards === idCard),
+  );
+  return selector;
+}

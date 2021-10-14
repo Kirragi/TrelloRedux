@@ -1,10 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-const userInitialState: string = '';
+import { State } from '../type';
 
 export const userSlice = createSlice({
   name: 'user',
-  initialState: userInitialState,
+  initialState: '',
   reducers: {
     setUser: (state, { payload }: PayloadAction<{ userName: string }>) => {
       if (payload.userName !== state) {
@@ -13,3 +12,5 @@ export const userSlice = createSlice({
     },
   },
 });
+
+export const slelectUser = (state: State) => state.user;

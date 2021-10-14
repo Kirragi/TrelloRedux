@@ -22,22 +22,29 @@ import {
 function Comment(props: { comment: CommentType }) {
   const comment = props.comment;
   const dispatch = useDispatch();
+
   function changeStatus() {
     dispatch(clearChengeComment());
-    dispatch(chengeStatusComment({ commentId: comment.idComments }));
+    dispatch(chengeStatusComment({ id: comment.id }));
   }
 
-  let statusComment: JSX.Element;
-  if (comment.statusChengeComment === true) {
-    statusComment = (
+  if (comment.statusChengeComment) {
+    return (
       <div>
+        <CommentHeader>
+          <p>Автор: {props.comment.authorComments}</p>
+          <ButtonTrash
+            onClick={() => dispatch(onCommentDelete({ id: props.comment.id }))}>
+            <ImgTheme src={trashIcon} alt="" />
+          </ButtonTrash>
+        </CommentHeader>
         <Form
           onSubmit={(formObj: { newText: string }) => {
             if (formObj.newText) {
               if (formObj.newText.trim()) {
                 dispatch(
                   changeCommentText({
-                    id: props.comment.idComments,
+                    id: props.comment.id,
                     text: formObj.newText,
                   }),
                 );
@@ -56,15 +63,6 @@ function Comment(props: { comment: CommentType }) {
         </Form>
       </div>
     );
-  } else {
-    statusComment = (
-      <div>
-        <span>{props.comment.commentText}</span>
-        <ButtonChenge onClick={() => changeStatus()}>
-          <ImgText src={ChengeIcon} alt="" />
-        </ButtonChenge>
-      </div>
-    );
   }
 
   return (
@@ -72,13 +70,14 @@ function Comment(props: { comment: CommentType }) {
       <CommentHeader>
         <p>Автор: {props.comment.authorComments}</p>
         <ButtonTrash
-          onClick={() =>
-            dispatch(onCommentDelete({ ids: props.comment.idComments }))
-          }>
+          onClick={() => dispatch(onCommentDelete({ id: props.comment.id }))}>
           <ImgTheme src={trashIcon} alt="" />
         </ButtonTrash>
       </CommentHeader>
-      {statusComment}
+      <span>{props.comment.commentText}</span>
+      <ButtonChenge onClick={() => changeStatus()}>
+        <ImgText src={ChengeIcon} alt="" />
+      </ButtonChenge>
     </div>
   );
 }

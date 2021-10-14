@@ -1,9 +1,10 @@
 import React from 'react';
 import crossIcon from '../assets/img/cross.png';
-import { State, ColumnType } from '../../type';
+import { ColumnType } from '../../type';
 import { Form, Field } from 'react-final-form';
 import { useSelector, useDispatch } from 'react-redux';
 import { closeAddPopup, createCard } from '../../store/actions';
+import { slelectUser } from '../../store/userSlice';
 import {
   WrapperPopup,
   HeaderPopup,
@@ -19,11 +20,10 @@ import {
 
 function CreateCardsPopup(props: { column: ColumnType }) {
   const dispatch = useDispatch();
-  const user = useSelector((state: State) => state.user);
+  const user = useSelector(slelectUser);
 
-  let popup: JSX.Element;
-  if (props.column.statusAddPopup === true) {
-    popup = (
+  if (props.column.statusAddPopup) {
+    return (
       <WrapperPopup onClick={() => dispatch(closeAddPopup())}>
         <ContentPopup onClick={(e) => e.stopPropagation()}>
           <HeaderPopup>
@@ -41,7 +41,7 @@ function CreateCardsPopup(props: { column: ColumnType }) {
                       theme: formObj.theme,
                       text: formObj.text,
                       author: user,
-                      columnID: props.column.idColumn,
+                      idColumn: props.column.id,
                     }),
                   );
                   dispatch(closeAddPopup());
@@ -71,14 +71,7 @@ function CreateCardsPopup(props: { column: ColumnType }) {
         </ContentPopup>
       </WrapperPopup>
     );
-  } else {
-    popup = <div></div>;
   }
-
-  return (
-    <div>
-      <div> {popup}</div>
-    </div>
-  );
+  return <></>;
 }
 export default CreateCardsPopup;

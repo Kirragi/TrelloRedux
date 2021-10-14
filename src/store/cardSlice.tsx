@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CardType } from '../type';
+import { CardType, State } from '../type';
+import { createSelector } from 'reselect';
 import { uuidv4 } from './generateUUID';
 const cardsInitialState: CardType[] = [
   {
@@ -7,7 +8,7 @@ const cardsInitialState: CardType[] = [
     theme: 'Lorem Ipsum',
     author: 'Andre',
     text: 'Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века.',
-    columnID: 1,
+    idColumn: 1,
     checked: false,
     statusPopup: false,
     statusText: false,
@@ -26,7 +27,7 @@ export const cardsSlice = createSlice({
       }: PayloadAction<{
         theme: string;
         text: string;
-        columnID: number;
+        idColumn: number;
         author: string;
       }>,
     ) => {
@@ -37,7 +38,7 @@ export const cardsSlice = createSlice({
           text: payload.text,
           checked: false,
           author: payload.author,
-          columnID: payload.columnID,
+          idColumn: payload.idColumn,
           statusPopup: false,
           statusText: false,
           statusTheme: false,
@@ -46,93 +47,95 @@ export const cardsSlice = createSlice({
         return newCards;
       }
     },
-    onCardChecked: (state, { payload }: PayloadAction<{ Id: string }>) => {
-      const newArr = state.map((item) => {
-        if (item.id === payload.Id) {
-          return { ...item, checked: !item.checked };
+    onCardChecked: (state, { payload }: PayloadAction<{ id: string }>) => {
+      const newArrCards = state.map((card) => {
+        if (card.id === payload.id) {
+          return { ...card, checked: !card.checked };
         }
-        return item;
+        return card;
       });
-      return newArr;
+      return newArrCards;
     },
-    onCardDelete: (state, { payload }: PayloadAction<{ cardId: string }>) => {
-      let newArr = state.filter((elem) => {
-        return elem.id !== payload.cardId;
+    onCardDelete: (state, { payload }: PayloadAction<{ id: string }>) => {
+      let newArrCards = state.filter((card) => {
+        return card.id !== payload.id;
       });
-      return newArr;
+      return newArrCards;
     },
     changeTheme: (
       state,
-      { payload }: PayloadAction<{ cardId: string; theme: string }>,
+      { payload }: PayloadAction<{ id: string; theme: string }>,
     ) => {
       if (payload.theme.trim()) {
-        const newArr = state.map((card) => {
-          if (card.id === payload.cardId) {
+        const newArrCards = state.map((card) => {
+          if (card.id === payload.id) {
             return { ...card, theme: payload.theme };
           }
           return card;
         });
-        return newArr;
+        return newArrCards;
       }
     },
     changeText: (
       state,
-      { payload }: PayloadAction<{ cardId: string; text: string }>,
+      { payload }: PayloadAction<{ id: string; text: string }>,
     ) => {
       if (payload.text.trim()) {
-        const newArrUsers = state.map((card) => {
-          if (card.id === payload.cardId) {
+        const newArrCards = state.map((card) => {
+          if (card.id === payload.id) {
             return { ...card, text: payload.text };
           }
           return card;
         });
-        return newArrUsers;
+        return newArrCards;
       }
     },
-    openPopupCard: (state, { payload }: PayloadAction<{ cardId: string }>) => {
-      const newArrUsers = state.map((card) => {
-        if (card.id === payload.cardId) {
+    openPopupCard: (state, { payload }: PayloadAction<{ id: string }>) => {
+      const newArrCards = state.map((card) => {
+        if (card.id === payload.id) {
           return { ...card, statusPopup: true };
         }
         return card;
       });
-      return newArrUsers;
+      return newArrCards;
     },
     closePopupCard: (state) => {
-      const newArrUsers = state.map((card) => {
+      const newArrCards = state.map((card) => {
         return { ...card, statusPopup: false };
       });
-      return newArrUsers;
+      return newArrCards;
     },
-    chengeStatusTheme: (
-      state,
-      { payload }: PayloadAction<{ cardId: string }>,
-    ) => {
-      const newArrUsers = state.map((card) => {
-        if (card.id === payload.cardId) {
+    chengeStatusTheme: (state, { payload }: PayloadAction<{ id: string }>) => {
+      const newArrCards = state.map((card) => {
+        if (card.id === payload.id) {
           return { ...card, statusText: false, statusTheme: true };
         }
         return card;
       });
-      return newArrUsers;
+      return newArrCards;
     },
-    chengeStatusText: (
-      state,
-      { payload }: PayloadAction<{ cardId: string }>,
-    ) => {
-      const newArrUsers = state.map((card) => {
-        if (card.id === payload.cardId) {
+    chengeStatusText: (state, { payload }: PayloadAction<{ id: string }>) => {
+      const newArrCards = state.map((card) => {
+        if (card.id === payload.id) {
           return { ...card, statusText: true, statusTheme: false };
         }
         return card;
       });
-      return newArrUsers;
+      return newArrCards;
     },
     clearChengeCard: (state) => {
-      const newArrUsers = state.map((card) => {
+      const newArrCards = state.map((card) => {
         return { ...card, statusText: false, statusTheme: false };
       });
-      return newArrUsers;
+      return newArrCards;
     },
   },
 });
+
+export function slelectCard(idColumn: number) {
+  const selector = createSelector(
+    (state: State) => state.cards,
+    (cards) => cards.filter((card) => card.idColumn === idColumn),
+  );
+  return selector;
+}

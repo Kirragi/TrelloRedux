@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Form, Field } from 'react-final-form';
-import { State } from '../../type';
 import {
   Button,
   WrapperPopup,
@@ -12,13 +11,13 @@ import {
   Name,
 } from './nameStyling';
 import { setUser } from '../../store/actions';
+import { slelectUser } from '../../store/userSlice';
 
 function NamePopup() {
   const dispatch = useDispatch();
-  const user = useSelector((state: State) => state.user);
-  let popup: JSX.Element;
+  const user = useSelector(slelectUser);
   if (user === '') {
-    popup = (
+    return (
       <WrapperPopup>
         <ContentPopup>
           <Form
@@ -44,14 +43,7 @@ function NamePopup() {
         </ContentPopup>
       </WrapperPopup>
     );
-  } else {
-    popup = <Name>{user}</Name>;
   }
-
-  return (
-    <div>
-      <div> {popup}</div>
-    </div>
-  );
+  return <Name>{user}</Name>;
 }
 export default NamePopup;

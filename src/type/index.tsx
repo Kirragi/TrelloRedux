@@ -3,7 +3,7 @@ export type CardType = {
   author: string;
   text: string;
   checked: boolean;
-  columnID: number;
+  idColumn: number;
   id: string;
   statusPopup: boolean;
   statusText: boolean;
@@ -11,13 +11,13 @@ export type CardType = {
 };
 export type ColumnType = {
   nameColumn: string;
-  idColumn: number;
+  id: number;
   statusAddPopup: boolean;
   statusChenge: boolean;
 };
 export type CommentType = {
+  id: string;
   idCards: string;
-  idComments: string;
   authorComments: string;
   commentText: string;
   statusChengeComment: boolean;
@@ -25,6 +25,7 @@ export type CommentType = {
 
 export type State = {
   user: string;
+  uesers: number;
   columns: ColumnType[];
   cards: CardType[];
   comments: CommentType[];

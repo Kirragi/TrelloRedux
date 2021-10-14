@@ -1,27 +1,27 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ColumnType } from '../type';
+import { ColumnType, State } from '../type';
 const columnsInitialState: ColumnType[] = [
   {
     nameColumn: 'ToDoo',
-    idColumn: 1,
+    id: 1,
     statusAddPopup: false,
     statusChenge: false,
   },
   {
     nameColumn: 'In Progress',
-    idColumn: 2,
+    id: 2,
     statusAddPopup: false,
     statusChenge: false,
   },
   {
     nameColumn: 'Testing',
-    idColumn: 3,
+    id: 3,
     statusAddPopup: false,
     statusChenge: false,
   },
   {
     nameColumn: 'Done',
-    idColumn: 4,
+    id: 4,
     statusAddPopup: false,
     statusChenge: false,
   },
@@ -32,11 +32,11 @@ export const columnsSlice = createSlice({
   reducers: {
     changeColumnName: (
       state,
-      { payload }: PayloadAction<{ columnId: number; newName: string }>,
+      { payload }: PayloadAction<{ id: number; newName: string }>,
     ) => {
       if (payload.newName.trim()) {
         const newArrColumn = state.map((column) => {
-          if (column.idColumn === payload.columnId) {
+          if (column.id === payload.id) {
             return { ...column, nameColumn: payload.newName };
           }
           return column;
@@ -44,9 +44,9 @@ export const columnsSlice = createSlice({
         return newArrColumn;
       }
     },
-    openAddPopup: (state, { payload }: PayloadAction<{ columnId: number }>) => {
+    openAddPopup: (state, { payload }: PayloadAction<{ id: number }>) => {
       const newArrColumn = state.map((column) => {
-        if (column.idColumn === payload.columnId) {
+        if (column.id === payload.id) {
           return { ...column, statusAddPopup: true };
         }
         return column;
@@ -59,12 +59,9 @@ export const columnsSlice = createSlice({
       });
       return newArrColumn;
     },
-    statusChengeColumn: (
-      state,
-      { payload }: PayloadAction<{ columnId: number }>,
-    ) => {
+    statusChengeColumn: (state, { payload }: PayloadAction<{ id: number }>) => {
       const newArrColumn = state.map((column) => {
-        if (column.idColumn === payload.columnId) {
+        if (column.id === payload.id) {
           return { ...column, statusChenge: true };
         }
         return column;
@@ -79,3 +76,4 @@ export const columnsSlice = createSlice({
     },
   },
 });
+export const slelectColumns = (state: State) => state.columns;
